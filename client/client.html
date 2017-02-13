@@ -7,6 +7,55 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
+    //function to send ajax
+    const sendAjax = (url) => {
+      //create a new xhr (ajax) request. 
+      //Remember that these are ASYNCHRONOUS
+      const xhr = new XMLHttpRequest();
+      //set the xhr to a GET request to a certain URL
+      xhr.open('GET', url);
+      //Set the accept headers to the desired response mime type
+      //Server does NOT have to support this. It is a gentle request.
+      xhr.setRequestHeader ("Accept", 'application/json');
+
+      //When the xhr loads, call handleResponse and pass the xhr object
+      xhr.onload = () => handleResponse(xhr);
+
+      //send our ajax request to the server
+      xhr.send();
+    };
+
+    const sendData = () => {
+      console.log('HERE');
+      
+      const page = getElementById('page');
+      const type = getElementById('type');
+      
+      switch (type.options[type.selectedIndex].value) {
+        case 'application/json':
+          sendAjax(page.options[page.selectedIndex].value);
+          break;
+        case 'text/xml':
+          break;
+        default:
+          sendAjax(page.options[page.selectedIndex].value);
+          break;
+      };
+    };
+
+    //initialization function
+    const init = () => {
+      console.log('Initializing');
+      
+      const successButton = document.querySelector("#success");
+      const badRequestButton = document.querySelector("#badRequest");
+      const notFoundButton = document.querySelector("#notFound");
+            
+      //attach the correct functions to the correct events
+      send.addEventListener('click', sendData);
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>

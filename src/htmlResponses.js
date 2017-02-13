@@ -9,7 +9,7 @@ const getPage = (request, response, file, type) => {
   response.end();
 };
 
-const getHome = (request, response) => {
+const getIndex = (request, response) => {
   getPage(request, response, home, 'text/html');
 };
 
@@ -17,6 +17,7 @@ const getCSS = (request, response) => {
   getPage(request, response, css, 'text/css');
 };
 
-module.exports.getPage = getPage;
-module.exports.getHome = getHome;
-module.exports.getCSS = getCSS;
+module.exports = {
+  getIndex,
+  getCSS,
+};
