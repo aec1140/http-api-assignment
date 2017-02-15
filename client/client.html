@@ -6,9 +6,63 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+  
+    //function to handle our xhr response
+    const handleResponse = (xhr) => {
+      const type = xhr.getResponseHeader('content-type');
+      
+      //grab the content section
+      const content = document.querySelector("#content");
+      content.innerHTML = "";
+      
+      //create h1 and p to hold our response data for the page
+      const h1 = document.createElement('h1');
+      const p = document.createElement('p');
+      
+      //check the xhr status code and handle accordingly
+      switch(xhr.status) {
+        case 200: // success
+          h1.textContent = `Success`;
+          break;
+        case 400: // bad request 
+          h1.textContent = `Bad Request`;
+          break;
+        case 401: // unauthorized
+          h1.textContent = `Unauthorized`;
+          break;
+        case 403: // forbidden
+          h1.textContent = `Forbidden`;
+          break;
+        case 500: // internal server error
+          h1.textContent = `Internal Server Error`;
+          break;
+        case 501: // not implemented
+          h1.textContent = `Not Implemented`;
+          break;
+        default: //not found (requested resource does not exist)
+          h1.textContent = `Resource Not Found`;
+          break;
+      }
+      
+      // if the response was in JSON
+      if (type === 'application/json') {
+        // parse the response text into a JSON object
+        const obj = JSON.parse(xhr.response);
+        p.textContent = `Message: ${obj.message}`;          
+      } // else if the response was in JSON
+      else if (type === 'text/xml') {
+        const message = xhr.responseXML.querySelector('message').textContent;
+        p.textContent = `Message: ${message}`; 
+      }
+      
+	  //append the h1 and p to the content.
+      content.appendChild(h1);
+      content.appendChild(p);
+    };
 
     //function to send ajax
-    const sendAjax = (url) => {
+    const sendAjax = (url, acceptedType) => {
+      console.log('Requesting: ' + url);
       //create a new xhr (ajax) request. 
       //Remember that these are ASYNCHRONOUS
       const xhr = new XMLHttpRequest();
@@ -16,7 +70,7 @@
       xhr.open('GET', url);
       //Set the accept headers to the desired response mime type
       //Server does NOT have to support this. It is a gentle request.
-      xhr.setRequestHeader ("Accept", 'application/json');
+      xhr.setRequestHeader ("Accept", acceptedType);
 
       //When the xhr loads, call handleResponse and pass the xhr object
       xhr.onload = () => handleResponse(xhr);
@@ -26,21 +80,12 @@
     };
 
     const sendData = () => {
-      console.log('HERE');
+      const page = document.getElementById('page');
+      const type = document.getElementById('type');      
+      const url = page.options[page.selectedIndex].value;
+      const acceptedType = type.options[type.selectedIndex].value;
       
-      const page = getElementById('page');
-      const type = getElementById('type');
-      
-      switch (type.options[type.selectedIndex].value) {
-        case 'application/json':
-          sendAjax(page.options[page.selectedIndex].value);
-          break;
-        case 'text/xml':
-          break;
-        default:
-          sendAjax(page.options[page.selectedIndex].value);
-          break;
-      };
+      sendAjax(url, acceptedType);
     };
 
     //initialization function
@@ -52,7 +97,7 @@
       const notFoundButton = document.querySelector("#notFound");
             
       //attach the correct functions to the correct events
-      send.addEventListener('click', sendData);
+      document.getElementById('send').addEventListener('click', sendData);
     };
 
     window.onload = init;
